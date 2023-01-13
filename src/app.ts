@@ -1,124 +1,142 @@
 import * as MRE from '@microsoft/mixed-reality-extension-sdk';
-import * as MainMenu from './mainMenu';
+import * as UI from './ui';
+import { startAlertOne } from './alertOne';
+import { startAlertTwo } from './alertTwo'
+import { startAlertThree } from './alertThree';
+import ColorMaterials from './colorMaterials';
+
 import * as Audio from './audio';
-import * as TalkingActor from './talkingActor';
-import * as ARTIFACT from './artifact';
-import { playCakeAudio, playRobotArmAudio } from './audio';
-import { User } from '@microsoft/mixed-reality-extension-sdk';
+import internal from 'assert';
+import { startScoreboard } from './assets';
 
 export const FONT = MRE.TextFontFamily.SansSerif;
+
+
 
 /**
  * The main class of this app. All the logic goes here.
  */
 export default class StoryBoard {
 	public assets: MRE.AssetContainer;
+	public anchorActor: MRE.Actor;
+	public scoreboardActor: MRE.Actor;
+	public leaderboardActor: MRE.Actor;
+	public startAudioLength: number;
+	public myRestartButton: MRE.Actor;
+	public myStartStoryButton: MRE.Actor;
+	public colors: ColorMaterials;
 
-	public avatarAnchor: MRE.Actor;
-	public tableWarehouseAnchor: MRE.Actor;
-	public frontWallAnchor: MRE.Actor;
-	public musicBox1: MRE.Actor;
-	public musicBox2: MRE.Actor;
-
-	public mainMenuAnchor: MRE.Actor;
-	public connectivityAnchor: MRE.Actor;
-	public accessManagementAnchor: MRE.Actor;
-	public vulnerabilityAnchor: MRE.Actor;
-
-	public connectivityAnchorScreen: MRE.Actor;
-	public accessManagementAnchorScreen: MRE.Actor;
-	public vulnerabilityAnchorScreen: MRE.Actor;
-
-	public teamNameAnchor: MRE.Actor;
-
-	public decisionConnectivityAncor: MRE.Actor;
-	public decisionVulnerabilityOrangeAncor: MRE.Actor;
-	public decisionVulnerabilityRedAncor: MRE.Actor;
-	public decisonAccessManagementAncor: MRE.Actor;
-
-	public decisionAccessManagementLeftBottomAncor: MRE.Actor;
-	public decisionAccessManagementRightBottomAncor: MRE.Actor;
-	public decisionAccessManagementLeftTopAncor: MRE.Actor;
-	public decisionAccessManagementRightTopAncor: MRE.Actor;
-
-	public leaderboardAnchor: MRE.Actor;
-	public leaderboardTextAnchor: MRE.Actor;
-	public scoreboardAnchor: MRE.Actor;
-
-	public alertAccessManagementCompletionStatus = false;
-	public alertConnectivityCompletionStatus = false;
-	public alertVulnerabilityCompletionStatus = false;
-
-	public teamName: string;
-	public teamScore: number;
-	public teamScoreAccessManagement: number;
-	public teamScoreConnectivity: number;
-	public teamScoreVulnerability: number;
-	public teamScoreAccessManagemenTimeBonus: number;
-	public teamScoreConnectivityTimeBonus: number;
-	public teamScoreVulnerabilityTimeBonus: number;
+	public alertOneCompletionStatus = false;
+	public alertTwoCompletionStatus = false;
+	public alertThreeCompletionStatus = false;
+	public currentActiveMemebers = 0;
+	
+	public avatarLocation = { x: 3.5, y: 0, z: 0 };
+	public avatarRotation = { x: 0, y: 180, z: 0 };
+	public wayOfWorkingAvatarRotation =  { x: 0, y: -1.8, z: 0 };
 
 	constructor(public context: MRE.Context) {
 		this.assets = new MRE.AssetContainer(context);
 		this.context.onStarted(() => this.started());
-		MainMenu.displayMainMenu(this);
+		//this.context.onUserLeft(user => this.userLeft(user));
+		//this.context.onUserJoined(user => this.userJoined(user));
+		
 	}
-
+	
 	private async started() {
-		TalkingActor.setupAvatarAnchor(this);
+		this.myRestartButton = this.restartButton();
+		this.myStartStoryButton = this.startStoryButton();
 		Audio.preloadAudio(this.assets);
-		this.playBackgroundMusic();
-		//MainMenu.displayMainMenu(this);
-		//this.test();
+		//this.testFunction();
 	}
 
-	private playBackgroundMusic(){
-		this.musicBox1 = MRE.Actor.CreateFromLibrary(this.context, {
-			resourceId: 'artifact:1143049292521407317',
+	private testFunction(){
+		const anchorActor = MRE.Actor.Create(this.context);
+		this.anchorActor = anchorActor;
+		startAlertOne(this);
+	}
+
+	private restartExperience() {
+		this.anchorActor.destroy();
+		this.assets.unload();
+		this.myRestartButton.destroy();
+		this.myStartStoryButton.destroy();
+		this.leaderboardActor.destroy();
+		this.scoreboardActor.destroy();
+		//this.miniWarehouse = null;
+		this.alertOneCompletionStatus = false;
+		this.alertTwoCompletionStatus = false;
+		this.alertThreeCompletionStatus = false;
+		this.assets = new MRE.AssetContainer(this.context);
+		this.started();
+	}
+
+	private startStoryButton(){
+		const startStoryButton = MRE.Actor.CreateFromLibrary(this.context, {
+			resourceId: 'artifact:1807790962953420963',
 			actor: {
-				name: 'checkbox3',
-				transform: {
-					local: {position: {x:23.4, y:-6.38, z:-44.5}}
-				}
+				name: 'startStoryButton',
+				transform: { 
+					local: { 
+						position: { x: 6, y: 1.7, z: 0 }, 
+						scale: { x: 1.1, y: 1.1, z: 1.1 } 
+					}
+				},
+				collider: { geometry: { shape: MRE.ColliderType.Box, size: { x: 0.5, y: 0.2, z: 0.01 } } }
 			}
 		});
-
-		this.musicBox2 = MRE.Actor.CreateFromLibrary(this.context, {
-			resourceId: 'artifact:1143049334246343528',
+		let startStoryButtonLabel = MRE.Actor.Create(this.context, {
 			actor: {
-				name: 'checkbox3',
-				transform: {
-					local: {position: {x:0, y:-6.333, z:-31}}
-				}
+			  transform: { local: { position: { x: 0.2, y: 0, z: 0 } } },
+			  text: {
+				contents: 'Start Button\nAlways Restart before Starting',
+				height: 0.2,
+				anchor: MRE.TextAnchorLocation.MiddleLeft,
+				justify: MRE.TextJustify.Left,
+				font: FONT
+			  },
+			  parentId: startStoryButton.id
 			}
 		});
-		let musicBox1Behavior = this.musicBox1.setBehavior(MRE.ButtonBehavior);
-		let musicBox2Behavior = this.musicBox2.setBehavior(MRE.ButtonBehavior);
-
-		musicBox1Behavior.onClick(user => {
-			user.prompt("Get your hands off my Cake!")
-		  });
-
-		musicBox2Behavior.onClick(user => {
-			user.prompt("Take a slice, leave some for the others!")
-		  });
-
-		playCakeAudio(this.assets, this.musicBox1);
-		playRobotArmAudio(this.assets, this.musicBox2);
-
+		startStoryButton.setBehavior(MRE.ButtonBehavior).onClick(user => {
+			this.anchorActor = UI.startIntroduction(this);
+			startScoreboard(this);
+			startStoryButton.destroy();
+		});
+		return startStoryButton;
 	}
 
-	private test(){
-		let x = MRE.Quaternion.RotationAxis(MRE.Vector3.Left(), Math.PI/2);
-		let y = MRE.Quaternion.RotationAxis(MRE.Vector3.Up(), Math.PI/2);
-		let z = MRE.Quaternion.RotationAxis(MRE.Vector3.Forward(), Math.PI/2);
-		console.log("Print X Rotation");
-		console.log(x);
-		console.log("Print Y Rotation");
-		console.log(y);
-		console.log("Print Z Rotation");
-		console.log(z);
-		console.log("Print SUM Rotation");
-		console.log(x.add(y).add(z));
+	private restartButton() {
+		const restartButton = MRE.Actor.CreateFromLibrary(this.context, {
+			resourceId: 'artifact:1579239194507608147',
+			actor: {
+				name: 'restartButton',
+				transform: { 
+					local: { 
+						position: { x: 6, y: .8, z: 0 }, 
+						scale: { x: 1.1, y: 1.1, z: 1.1 } 
+					}
+				},
+				collider: { geometry: { shape: MRE.ColliderType.Box, size: { x: 0.5, y: 0.2, z: 0.01 } } }
+			}
+		});
+		let restartButtonLabel = MRE.Actor.Create(this.context, {
+			actor: {
+			  transform: { local: { position: { x: 0.2, y: 0, z: 0 } } },
+			  text: {
+				contents: 'Restart Button',
+				height: 0.2,
+				anchor: MRE.TextAnchorLocation.MiddleLeft,
+				justify: MRE.TextJustify.Left,
+				font: FONT
+			  },
+			  parentId: restartButton.id
+			}
+		});
+		restartButton.setBehavior(MRE.ButtonBehavior).onClick(user => {
+			this.restartExperience()
+		});
+		return restartButton;
 	}
+
 }
