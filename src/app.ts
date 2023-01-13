@@ -1,7 +1,6 @@
 import * as MRE from '@microsoft/mixed-reality-extension-sdk';
 import * as MainMenu from './mainMenu';
 import * as Audio from './audio';
-import * as Texture from './texture';
 import * as TalkingActor from './talkingActor';
 import * as ARTIFACT from './artifact';
 import { playCakeAudio, playRobotArmAudio } from './audio';
@@ -14,8 +13,6 @@ export const FONT = MRE.TextFontFamily.SansSerif;
  */
 export default class StoryBoard {
 	public assets: MRE.AssetContainer;
-
-	public resetLeaderBoardAnchor: MRE.Actor;
 
 	public avatarAnchor: MRE.Actor;
 	public tableWarehouseAnchor: MRE.Actor;
@@ -64,22 +61,14 @@ export default class StoryBoard {
 	constructor(public context: MRE.Context) {
 		this.assets = new MRE.AssetContainer(context);
 		this.context.onStarted(() => this.started());
-		//MainMenu.displayMainMenu(this);
+		MainMenu.displayMainMenu(this);
 	}
 
 	private async started() {
-		console.log("avatar load.....");
 		TalkingActor.setupAvatarAnchor(this);
-		console.log("audio load......");
 		Audio.preloadAudio(this.assets);
-		console.log("image load......");
-		Texture.preloadImages(this.assets);
-		console.log("mesh load.......")
-		Texture.preloadMesh(this.assets);
-		console.log("start background music");
 		this.playBackgroundMusic();
-		console.log("start display main menu");
-		MainMenu.displayMainMenu(this);
+		//MainMenu.displayMainMenu(this);
 		//this.test();
 	}
 

@@ -12,21 +12,29 @@ export const FONT = MRE.TextFontFamily.SansSerif;
 
 
 function displayImage(app: StoryBoard, image: string, location: any, size: any): MRE.Actor {
-    let displayScreenMaterial = app.assets.materials.find(x => x.name === image);
-    let mesh = app.assets.meshes.find(x => x.name === "cube2");
-
+	let displayScreentexture = app.assets.createTexture(image , { uri: image });
+    let displayScreenMaterial = app.assets.createMaterial(image, {
+        mainTextureId: displayScreentexture.id,
+        mainTextureScale: { x: 1, y: 1 },
+        emissiveTextureId: displayScreentexture.id,
+        emissiveTextureScale: { x: 1, y: 1 },
+        emissiveColor: new MRE.Color3(1, 1, 1),
+        alphaMode: MRE.AlphaMode.Blend,
+        
+    });
     let backgroundImage = MRE.Actor.Create(app.context, {
         actor: {
             name: image,
             transform: { local: { position: location, scale: size} },
             collider: { geometry: { shape: MRE.ColliderType.Box, size: { x: 0.5, y: 0.2, z: 0.01 } } },
             appearance: {
-                meshId: mesh.id,
-				materialId: displayScreenMaterial.id
+                meshId: app.assets.createBoxMesh("cube2", 7.8, 4.38, 0.02).id,
+                materialId: displayScreenMaterial.id
             },
             parentId: app.decisonAccessManagementAncor.id
         }
     });
+
 	return backgroundImage
 }
 
@@ -377,7 +385,7 @@ export function decisionScreenAccessManagement(app: StoryBoard, decisonLocation:
             });
             clearInterval(decisionInterval);
             impactOnVote(app, 
-                OPTION1Count, OPTION2Count, OPTION3Count, decisonLocation,20,
+                OPTION1Count, OPTION2Count, OPTION3Count, decisonLocation,10,
                 finishDecison)
         }
     }, 1000); 
@@ -395,7 +403,7 @@ export function decisionScreenAccessManagement(app: StoryBoard, decisonLocation:
                         element.destroy();
                     });
                     impactOnVote(app,
-                        OPTION1Count, OPTION2Count, OPTION3Count, decisonLocation, 20,
+                        OPTION1Count, OPTION2Count, OPTION3Count, decisonLocation, 10,
                         finishDecison)
                 },2000);
             }
@@ -414,7 +422,7 @@ export function decisionScreenAccessManagement(app: StoryBoard, decisonLocation:
                         element.destroy();
                     });
                     impactOnVote(app,
-                        OPTION1Count, OPTION2Count, OPTION3Count, decisonLocation, 20,
+                        OPTION1Count, OPTION2Count, OPTION3Count, decisonLocation, 10,
                         finishDecison)
                 },2000);
             }
@@ -432,7 +440,7 @@ export function decisionScreenAccessManagement(app: StoryBoard, decisonLocation:
                         element.destroy();
                     });
                     impactOnVote(app,
-                        OPTION1Count, OPTION2Count, OPTION3Count, decisonLocation, 20,
+                        OPTION1Count, OPTION2Count, OPTION3Count, decisonLocation, 10,
                         finishDecison)
                 },2000);
             }

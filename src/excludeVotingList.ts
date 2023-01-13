@@ -1,0 +1,1 @@
+export const EXCLUDE_VOTING_IDS: string[] = ["Aahil", "Kay"];
